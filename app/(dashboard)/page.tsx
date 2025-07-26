@@ -83,9 +83,9 @@ export default function Dashboard() {
             {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">Dashboard OSS</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
                     <p className="text-sm text-gray-600">
-                        Selamat datang kembali! Berikut adalah ringkasan layanan perizinan berusaha hari ini.
+                        Selamat datang kembali! Berikut adalah ringkasan hari ini.
                     </p>
                 </div>
                 <div className="flex items-center space-x-3">

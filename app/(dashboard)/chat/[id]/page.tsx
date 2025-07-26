@@ -89,7 +89,9 @@ export default function ChatPage() {
     // WebSocket connection
     useEffect(() => {
         const connectWebSocket = () => {
-            const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080'}/ws/chat`;
+            // Ganti ke endpoint livechat-ws
+            const agentId = 'current-agent-id'; // TODO: Ganti dengan ID agent dari context/auth
+            const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8081'}/ws/${sessionId}/${agentId}/agent`;
             const websocket = new WebSocket(wsUrl);
 
             websocket.onopen = () => {
@@ -100,7 +102,7 @@ export default function ChatPage() {
                     type: 'join_session',
                     session_id: sessionId,
                     data: {
-                        agent_id: 'current-agent-id' // TODO: Get from auth context
+                        agent_id: agentId
                     },
                     timestamp: new Date().toISOString()
                 }));
@@ -157,7 +159,7 @@ export default function ChatPage() {
                             }
                             break;
 
-                        case 'typing':
+                        case 'typing_indicator':
                             if (wsMessage.data.session_id === sessionId && wsMessage.data.sender_type === 'customer') {
                                 setCustomerTyping(wsMessage.data.is_typing || false);
                                 scrollToBottom();
@@ -439,12 +441,12 @@ export default function ChatPage() {
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                                 <span className="text-sm font-medium text-white">
-                                    {session.customer.person_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                    {session.contact?.contact_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                 </span>
                             </div>
                             <div className="min-w-0">
                                 <h1 className="text-lg font-semibold text-gray-900 truncate">
-                                    {session.customer.person_name}
+                                    {session.contact?.contact_name}
                                 </h1>
                                 <div className="flex items-center space-x-3 text-sm text-gray-500">
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(session.status)}`}>
@@ -462,6 +464,7 @@ export default function ChatPage() {
                                 <div className="mt-2">
                                     <ConnectionStatus sessionId={sessionId} />
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -493,15 +496,15 @@ export default function ChatPage() {
                                         <div className="flex items-center space-x-3 mb-4">
                                             <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                                                 <span className="text-sm font-medium text-white">
-                                                    {session.customer.person_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                                    {session.contact?.contact_name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                                 </span>
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <h4 className="text-sm font-medium text-gray-900 truncate">
-                                                    {session.customer.person_name}
+                                                    {session.contact?.contact_name}
                                                 </h4>
                                                 <p className="text-xs text-gray-500 truncate">
-                                                    {session.customer.company_name}
+                                                    {session.contact?.company_name}
                                                 </p>
                                             </div>
                                         </div>
@@ -511,11 +514,11 @@ export default function ChatPage() {
                                     <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
                                         <div className="text-xs">
                                             <p className="text-gray-500 mb-1">Email</p>
-                                            <p className="text-gray-900 truncate">{session.customer.email}</p>
+                                            <p className="text-gray-900 truncate">{session.contact?.contact_email}</p>
                                         </div>
                                         <div className="text-xs">
                                             <p className="text-gray-500 mb-1">Company</p>
-                                            <p className="text-gray-900 truncate">{session.customer.company_name}</p>
+                                            <p className="text-gray-900 truncate">{session.contact?.company_name}</p>
                                         </div>
                                         <div className="text-xs">
                                             <p className="text-gray-500 mb-1">Chat Started</p>
@@ -705,7 +708,7 @@ export default function ChatPage() {
                         </div>
 
                         <p className="text-gray-600 mb-6">
-                            Are you sure you want to close this chat session with {session.customer.person_name}?
+                            Are you sure you want to close this chat session with {session.contact?.contact_name}?
                             This action cannot be undone.
                         </p>
 

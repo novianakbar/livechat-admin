@@ -70,8 +70,8 @@ export default function ConversationsPage() {
                 matchesFilter = conversation.status === selectedFilter;
         }
 
-        const matchesSearch = conversation.customer.person_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            conversation.customer.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        const matchesSearch = conversation.contact?.contact_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            conversation.contact?.contact_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
             conversation.topic.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesFilter && matchesSearch;
     });
@@ -164,9 +164,9 @@ export default function ConversationsPage() {
             {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">Percakapan OSS</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">Percakapan</h1>
                     <p className="text-sm text-gray-600">
-                        Kelola semua percakapan layanan OSS perizinan berusaha
+                        Kelola semua percakapan
                     </p>
                 </div>
                 <div className="flex items-center">
@@ -349,7 +349,7 @@ export default function ConversationsPage() {
                                     {/* Customer Avatar */}
                                     <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                                         <span className="text-sm font-medium text-white">
-                                            {getCustomerInitials(conversation.customer.person_name)}
+                                            {getCustomerInitials(conversation.contact?.company_name || "Unknown")}
                                         </span>
                                     </div>
 
@@ -357,7 +357,7 @@ export default function ConversationsPage() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center space-x-3 mb-1">
                                             <h3 className="text-lg font-semibold text-gray-900">
-                                                {conversation.customer.person_name}
+                                                {conversation.contact?.company_name}
                                             </h3>
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(conversation.status)}`}>
                                                 {conversation.status}
@@ -375,8 +375,8 @@ export default function ConversationsPage() {
                                             })()}
                                         </div>
 
-                                        <p className="text-sm text-gray-600 mb-1">{conversation.customer.email}</p>
-                                        <p className="text-sm text-gray-500 mb-3">Company: {conversation.customer.company_name}</p>
+                                        <p className="text-sm text-gray-600 mb-1">{conversation.contact?.contact_email}</p>
+                                        <p className="text-sm text-gray-500 mb-3">Company: {conversation.contact?.company_name}</p>
 
                                         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
                                             {conversation.agent ? (

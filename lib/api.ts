@@ -25,20 +25,47 @@ export interface Department {
   updated_at: string;
 }
 
-export interface Customer {
+// export interface Customer {
+//   id: UUID;
+//   company_name: string;
+//   person_name: string;
+//   email: string;
+//   ip_address: string;
+//   created_at: string;
+//   updated_at: string;
+// }
+
+export interface ChatUser {
   id: UUID;
-  company_name: string;
-  person_name: string;
-  email: string;
+  browser_uuid: string;
+  oss_user_id?: UUID;
+  email?: string;
+  is_anonymous: boolean;
   ip_address: string;
+  user_agent?: string;
   created_at: string;
   updated_at: string;
+  deleted_at?: string;
+}
+
+export interface Contact {
+  id: UUID;
+  session_id: UUID;
+  session?: ChatSession;
+  contact_name: string;
+  contact_email: string;
+  contact_phone: string;
+  position: string;
+  company_name: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
 }
 
 export interface ChatSession {
   id: UUID;
-  customer_id: UUID;
-  customer: Customer;
+  chat_user_id: UUID;
+  chat_user: ChatUser;
   agent_id?: UUID;
   agent?: User;
   department_id?: UUID;
@@ -48,8 +75,10 @@ export interface ChatSession {
   priority: "low" | "normal" | "high" | "urgent";
   started_at: string;
   ended_at?: string;
+  contact?: Contact;
   created_at: string;
   updated_at: string;
+  deleted_at?: string;
 }
 
 export interface ChatMessage {
@@ -376,7 +405,7 @@ export const chatApi = {
       queryParams.set("department_id", params.department_id);
 
     const response = await apiCall<PaginatedResponse<ChatSession>>(
-      `/chat/admin/sessions?${queryParams.toString()}`
+      `/chat-management/admin/sessions?${queryParams.toString()}`
     );
     return { sessions: response.data, pagination: response.pagination };
   },
@@ -393,21 +422,21 @@ export const chatApi = {
     if (params?.status) queryParams.set("status", params.status);
 
     const response = await apiCall<PaginatedResponse<ChatSession>>(
-      `/chat/agent/sessions?${queryParams.toString()}`
+      `/chat-management/agent/sessions?${queryParams.toString()}`
     );
     return { sessions: response.data, pagination: response.pagination };
   },
 
   getSession: async (sessionId: UUID): Promise<ChatSession> => {
     const response = await apiCall<ApiResponse<ChatSession>>(
-      `/chat/agent/sessions/${sessionId}`
+      `/chat-management/agent/sessions/${sessionId}`
     );
     return response.data;
   },
 
   getAgentSession: async (sessionId: UUID): Promise<ChatSession> => {
     const response = await apiCall<ApiResponse<ChatSession>>(
-      `/chat/agent/sessions/${sessionId}`
+      `/chat-management/agent/sessions/${sessionId}`
     );
     return response.data;
   },
@@ -420,15 +449,45 @@ export const chatApi = {
     total_customer: number;
     total_agent: number;
   }> => {
-    const response = await apiCall<
-      ApiResponse<{
-        customer_connected: boolean;
-        agent_connected: boolean;
-        total_customer: number;
-        total_agent: number;
-      }>
-    >(`/chat/agent/sessions/${sessionId}/connection-status`);
-    return response.data;
+    try {
+      // Use the new WebSocket server endpoint for connection status with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+      const response = await fetch(
+        `http://localhost:8081/api/session/${sessionId}/connection-status`,
+        {
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === "AbortError") {
+          throw new Error(
+            "Connection timeout - WebSocket server is not responding"
+          );
+        }
+        if (error.message.includes("fetch")) {
+          throw new Error(
+            "WebSocket server is unavailable - connection refused"
+          );
+        }
+      }
+      throw new Error(
+        `Failed to get connection status: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
   },
 
   getMessages: async (sessionId: UUID): Promise<ChatMessage[]> => {
@@ -447,7 +506,7 @@ export const chatApi = {
     }
   ): Promise<ChatMessage> => {
     const response = await apiCall<ApiResponse<ChatMessage>>(
-      `/chat/agent/message`,
+      `/chat-management/agent/message`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -638,11 +697,12 @@ export class WebSocketClient {
       return;
     }
 
-    const wsUrl = `${API_BASE_URL.replace("http", "ws")}/ws?token=${token}`;
+    // Connect to the new WebSocket server
+    const wsUrl = `ws://localhost:8081/ws/session_id/agent_id/agent`;
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
-      console.log("WebSocket connected");
+      console.log("WebSocket connected to livechat-ws server");
       this.reconnectAttempts = 0;
     };
 
