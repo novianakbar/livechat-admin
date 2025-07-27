@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/lib/api';
-import { authApi, setAuthToken, setRefreshToken, clearAuthTokens, getAuthToken } from '@/lib/api';
+import { authApi, setAuthToken, setRefreshToken, clearAuthTokens, getAuthToken, agentStatusApi } from '@/lib/api';
 
 interface AuthContextType {
     user: User | null;
@@ -80,16 +80,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } catch (error) {
             throw error;
         }
-    };
-
-    const logout = async () => {
+    }; const logout = async () => {
         try {
+            // Set agent offline before logout if user is agent/admin
+            if (user && (user.role === 'agent' || user.role === 'admin')) {
+                try {
+                    await agentStatusApi.setOffline();
+                } catch (error) {
+                    console.error('Failed to set agent offline during logout:', error);
+                    // Don't fail logout if this fails
+                }
+            }
+
             await authApi.logout();
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
             setUser(null);
             clearAuthTokens();
+
+            // Clear agent status from localStorage
+            if (typeof window !== "undefined") {
+                try {
+                    localStorage.removeItem("agent_status");
+                } catch (error) {
+                    console.warn("Failed to clear agent status during logout:", error);
+                }
+            }
+
             router.push('/login');
         }
     };

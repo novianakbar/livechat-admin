@@ -9,11 +9,12 @@ import {
     UserCircleIcon,
     EnvelopeIcon
 } from '@heroicons/react/24/outline';
-import { agentApi, usersApi, User, AgentStatus } from '@/lib/api';
+import { agentApi, usersApi, agentStatusApi, User, AgentOnlineStatus } from '@/lib/api';
+import { OnlineAgentsDisplay } from '@/components/agents/OnlineAgentsDisplay';
 
 export default function AgentsPage() {
     const [agents, setAgents] = useState<User[]>([]);
-    const [agentStatuses, setAgentStatuses] = useState<AgentStatus[]>([]);
+    const [onlineAgentsMap, setOnlineAgentsMap] = useState<Record<string, AgentOnlineStatus>>({});
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStatus, setSelectedStatus] = useState<'all' | 'online' | 'offline' | 'busy' | 'away'>('all');
@@ -21,12 +22,19 @@ export default function AgentsPage() {
     const loadData = useCallback(async () => {
         try {
             setLoading(true);
-            const [agentList, statuses] = await Promise.all([
+            const [agentList, onlineAgentsData] = await Promise.all([
                 usersApi.getAgents(),
-                agentApi.getAgentStatus()
+                agentStatusApi.getOnlineAgents()
             ]);
+
             setAgents(agentList);
-            setAgentStatuses(statuses);
+
+            // Create a map of online agents for quick lookup
+            const onlineMap: Record<string, AgentOnlineStatus> = {};
+            onlineAgentsData.agents.forEach(agent => {
+                onlineMap[agent.agent_id] = agent;
+            });
+            setOnlineAgentsMap(onlineMap);
         } catch (error) {
             console.error('Failed to load agents:', error);
         } finally {
@@ -38,9 +46,9 @@ export default function AgentsPage() {
         loadData();
     }, [loadData]);
 
-    const getAgentStatus = (agentId: string) => {
-        const status = agentStatuses.find(s => s.agent_id === agentId);
-        return status?.status || 'offline';
+    const getAgentStatus = (agentId: string): 'online' | 'offline' | 'busy' | 'away' => {
+        const onlineAgent = onlineAgentsMap[agentId];
+        return onlineAgent?.status || 'offline';
     };
 
     const filteredAgents = agents.filter(agent => {
@@ -53,10 +61,10 @@ export default function AgentsPage() {
 
     const statusFilters = [
         { id: 'all', label: 'All Agents', count: agents.length },
-        { id: 'online', label: 'Online', count: agentStatuses.filter(s => s.status === 'online').length },
-        { id: 'offline', label: 'Offline', count: agentStatuses.filter(s => s.status === 'offline').length },
-        { id: 'busy', label: 'Busy', count: agentStatuses.filter(s => s.status === 'busy').length },
-        { id: 'away', label: 'Away', count: agentStatuses.filter(s => s.status === 'away').length }
+        { id: 'online', label: 'Online', count: Object.values(onlineAgentsMap).filter(agent => agent.status === 'online').length },
+        { id: 'offline', label: 'Offline', count: agents.length - Object.keys(onlineAgentsMap).length },
+        { id: 'busy', label: 'Busy', count: Object.values(onlineAgentsMap).filter(agent => agent.status === 'busy').length },
+        { id: 'away', label: 'Away', count: Object.values(onlineAgentsMap).filter(agent => agent.status === 'away').length }
     ];
 
     const getStatusColor = (status: string) => {
@@ -117,6 +125,9 @@ export default function AgentsPage() {
                     <span>Add Agent</span>
                 </button>
             </div>
+
+            {/* Online Agents Display */}
+            <OnlineAgentsDisplay refreshInterval={30000} />
 
             {/* Filters */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

@@ -16,10 +16,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { chatApi, ChatSession, ChatMessage } from '@/lib/api';
 import ConnectionStatus from '@/components/chat/ConnectionStatus';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export default function ChatPage() {
     const params = useParams();
     const router = useRouter();
+    const { user, isLoading: authLoading } = useAuth();
     const sessionId = params.id as string;
 
     // Core state
@@ -88,9 +90,12 @@ export default function ChatPage() {
 
     // WebSocket connection
     useEffect(() => {
+        // Tunggu sampai user data tersedia
+        if (!user) return;
+
         const connectWebSocket = () => {
             // Ganti ke endpoint livechat-ws
-            const agentId = 'current-agent-id'; // TODO: Ganti dengan ID agent dari context/auth
+            const agentId = user.id; // Gunakan ID user yang sedang login
             const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8081'}/ws/${sessionId}/${agentId}/agent`;
             const websocket = new WebSocket(wsUrl);
 
@@ -225,7 +230,7 @@ export default function ChatPage() {
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sessionId]);
+    }, [sessionId, user]);
 
     // Load initial data
     useEffect(() => {
@@ -397,12 +402,29 @@ export default function ChatPage() {
         }
     };
 
-    if (loading) {
+    if (loading || authLoading) {
         return (
             <div className="h-full flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
                     <p className="mt-4 text-gray-600">Loading chat session...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                    <ExclamationTriangleIcon className="h-12 w-12 text-red-600 mx-auto mb-4" />
+                    <p className="text-gray-900 font-medium mb-2">User not authenticated</p>
+                    <button
+                        onClick={() => router.push('/login')}
+                        className="text-red-600 hover:text-red-700 font-medium"
+                    >
+                        Go to Login
+                    </button>
                 </div>
             </div>
         );

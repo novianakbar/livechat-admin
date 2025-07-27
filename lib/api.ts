@@ -588,6 +588,85 @@ export const agentApi = {
   },
 };
 
+// Agent Status API - New Agent Online Status feature
+export const agentStatusApi = {
+  // Send heartbeat to mark agent as online
+  sendHeartbeat: async (
+    status?: "online" | "busy" | "away"
+  ): Promise<{ agent_id: string; status: string }> => {
+    const response = await apiCall<
+      ApiResponse<{ agent_id: string; status: string }>
+    >("/agent-status/heartbeat", {
+      method: "POST",
+      body: JSON.stringify({ status: status || "online" }),
+    });
+    return response.data;
+  },
+
+  // Set agent as offline
+  setOffline: async (): Promise<{ agent_id: string; status: string }> => {
+    const response = await apiCall<
+      ApiResponse<{ agent_id: string; status: string }>
+    >("/agent-status/offline", {
+      method: "POST",
+    });
+    return response.data;
+  },
+
+  // Get all online agents
+  getOnlineAgents: async (): Promise<{
+    agents: AgentOnlineStatus[];
+    count: number;
+  }> => {
+    const response = await apiCall<
+      ApiResponse<{ agents: AgentOnlineStatus[]; count: number }>
+    >("/agent-status/online");
+    return response.data;
+  },
+
+  // Get online agents by department
+  getOnlineAgentsByDepartment: async (
+    departmentId: string
+  ): Promise<{
+    department_id: string;
+    agents: AgentOnlineStatus[];
+    count: number;
+  }> => {
+    const response = await apiCall<
+      ApiResponse<{
+        department_id: string;
+        agents: AgentOnlineStatus[];
+        count: number;
+      }>
+    >(`/agent-status/department/${departmentId}`);
+    return response.data;
+  },
+
+  // Get specific agent status
+  getAgentStatus: async (
+    agentId: string
+  ): Promise<{
+    agent?: AgentOnlineStatus;
+    online: boolean;
+  }> => {
+    const response = await apiCall<
+      ApiResponse<{
+        agent?: AgentOnlineStatus;
+        online: boolean;
+      }>
+    >(`/agent-status/agent/${agentId}`);
+    return response.data;
+  },
+
+  // Get department statistics
+  getDepartmentStats: async (): Promise<{ departments: DepartmentStats }> => {
+    const response = await apiCall<
+      ApiResponse<{ departments: DepartmentStats }>
+    >("/agent-status/stats");
+    return response.data;
+  },
+};
+
 // Tags API
 export const tagsApi = {
   getTags: async (): Promise<ChatTag[]> => {
@@ -790,3 +869,17 @@ export const usersApi = {
     return response.data;
   },
 };
+
+export interface AgentOnlineStatus {
+  agent_id: string;
+  name: string;
+  email: string;
+  department_id?: string;
+  department: string;
+  status: "online" | "busy" | "away";
+  last_heartbeat: string;
+}
+
+export interface DepartmentStats {
+  [department: string]: number;
+}

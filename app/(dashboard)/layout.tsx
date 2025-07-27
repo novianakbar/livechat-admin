@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { SidebarProvider } from "@/components/layout/SidebarContext";
 import ProtectedRoute from "@/components/providers/ProtectedRoute";
+import { AgentHeartbeatProvider } from "@/components/providers/AgentHeartbeatProvider";
 import { usePathname } from 'next/navigation';
 
 export default function DashboardLayout({
@@ -13,11 +14,13 @@ export default function DashboardLayout({
 }) {
     return (
         <ProtectedRoute>
-            <SidebarProvider>
-                <DashboardContent>
-                    {children}
-                </DashboardContent>
-            </SidebarProvider>
+            <AgentHeartbeatProvider>
+                <SidebarProvider>
+                    <DashboardContent>
+                        {children}
+                    </DashboardContent>
+                </SidebarProvider>
+            </AgentHeartbeatProvider>
         </ProtectedRoute>
     );
 }

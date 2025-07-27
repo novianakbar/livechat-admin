@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { AgentStatusIndicator } from './AgentStatusIndicator';
 
 export function Header() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -40,6 +41,9 @@ export function Header() {
 
                     {/* Right side - Notifications and Profile */}
                     <div className="flex items-center space-x-4">
+                        {/* Agent Status Indicator */}
+                        <AgentStatusIndicator />
+
                         {/* Notifications */}
                         <div className="relative">
                             <button className="p-2 text-gray-400 hover:text-red-600 relative rounded-lg hover:bg-red-50 transition-colors">
