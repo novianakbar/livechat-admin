@@ -10,13 +10,15 @@ import {
     HomeIcon,
     UserIcon,
     Bars3Icon,
-    XMarkIcon
+    XMarkIcon,
+    TicketIcon
 } from '@heroicons/react/24/outline';
 import { useSidebar } from './SidebarContext';
 
 const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Conversations', href: '/conversations', icon: ChatBubbleBottomCenterTextIcon },
+    { name: 'Tickets', href: '/tickets', icon: TicketIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
     { name: 'Agents', href: '/agents', icon: UsersIcon },
     { name: 'Profile', href: '/profile', icon: UserIcon },
