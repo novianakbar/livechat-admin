@@ -1,0 +1,240 @@
+/* Modal Animation Enhancements */
+
+/* Remove default outline from modal elements */
+.modal-focus-custom,
+.modal-focus-custom:focus,
+.modal-focus-custom:focus-visible,
+[role="dialog"],
+[role="dialog"]:focus,
+[role="dialog"]:focus-visible,
+[aria-modal="true"],
+[aria-modal="true"]:focus,
+[aria-modal="true"]:focus-visible {
+  outline: none !important;
+}
+
+/* Custom focus styling for modal buttons and inputs */
+.modal-focus-custom.btn-enhanced:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.modal-focus-custom.form-input-enhanced:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+  border-color: rgb(239, 68, 68) !important;
+}
+
+/* Modal backdrop fade animation */
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalBackdropFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Modal content slide and scale animation */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+/* Enhanced form input focus states */
+.form-input-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.form-input-enhanced:focus {
+  @apply ring-2 ring-blue-500/20 border-blue-500 shadow-lg;
+  transform: translateY(-1px);
+}
+
+.form-input-enhanced:hover:not(:focus) {
+  @apply border-gray-400;
+}
+
+/* Enhanced button animations */
+.btn-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.btn-enhanced:hover {
+  transform: translateY(-1px);
+  @apply shadow-lg;
+}
+
+.btn-enhanced:active {
+  transform: translateY(0);
+  @apply shadow-md;
+}
+
+/* Color picker button animations */
+.color-picker-button {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.color-picker-button:hover {
+  transform: scale(1.1);
+  @apply shadow-lg;
+}
+
+.color-picker-button:active {
+  transform: scale(0.95);
+}
+
+/* Checkbox enhanced styling */
+.checkbox-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.checkbox-enhanced:hover {
+  @apply ring-2 ring-blue-500/20;
+}
+
+/* Select dropdown enhanced styling */
+.select-enhanced {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+.select-enhanced:focus {
+  @apply ring-2 ring-blue-500/20 border-blue-500 shadow-lg;
+}
+
+/* Loading state animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Fade in animation for form sections */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Success/Error state indicators */
+.input-success {
+  @apply border-green-400 focus:border-green-500 focus:ring-green-500/20;
+}
+
+.input-error {
+  @apply border-red-400 focus:border-red-500 focus:ring-red-500/20;
+}
+
+/* Improved form layout spacing */
+.form-section {
+  @apply space-y-4;
+}
+
+.form-row {
+  @apply grid gap-4;
+}
+
+.form-row-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.form-row-3 {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+/* Enhanced modal footer */
+.modal-footer-enhanced {
+  @apply border-t border-gray-200 bg-gray-50/50 backdrop-blur-sm;
+}
+
+/* Responsive modal sizing */
+@media (max-width: 640px) {
+  .modal-responsive {
+    @apply mx-4 w-auto;
+  }
+}
+
+/* Dark mode support for modals */
+@media (prefers-color-scheme: dark) {
+  .modal-dark {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .modal-dark .modal-header {
+    @apply border-gray-700 text-gray-100;
+  }
+
+  .modal-dark .modal-footer-enhanced {
+    @apply border-gray-700 bg-gray-800/50;
+  }
+}
+
+/* Accessibility improvements */
+.modal-focus-trap {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+/* Smooth scrollbar for modal content */
+.modal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) transparent;
+}
+
+.modal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(156 163 175);
+  border-radius: 3px;
+}
+
+.modal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
+}

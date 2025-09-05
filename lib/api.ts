@@ -742,12 +742,51 @@ export const departmentsApi = {
   createDepartment: async (department: {
     name: string;
     description?: string;
+    is_active?: boolean;
+    can_handle_tickets?: boolean;
+    max_tickets_per_agent?: number;
+    support_level?: number;
+    parent_dept_id?: string;
+    escalation_dept_id?: string;
+    max_escalation_level?: number;
+    auto_assignment_rule?: string;
   }): Promise<Department> => {
     const response = await apiCall<ApiResponse<Department>>("/departments", {
       method: "POST",
       body: JSON.stringify(department),
     });
     return response.data;
+  },
+
+  updateDepartment: async (
+    id: string,
+    department: Partial<{
+      name: string;
+      description: string;
+      is_active: boolean;
+      can_handle_tickets: boolean;
+      max_tickets_per_agent: number;
+      support_level: number;
+      parent_dept_id: string;
+      escalation_dept_id: string;
+      max_escalation_level: number;
+      auto_assignment_rule: string;
+    }>
+  ): Promise<Department> => {
+    const response = await apiCall<ApiResponse<Department>>(
+      `/departments/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(department),
+      }
+    );
+    return response.data;
+  },
+
+  deleteDepartment: async (id: string): Promise<void> => {
+    await apiCall(`/departments/${id}`, {
+      method: "DELETE",
+    });
   },
 };
 
@@ -868,6 +907,45 @@ export const usersApi = {
     const response = await apiCall<ApiResponse<User[]>>(`/users/agents`);
     return response.data;
   },
+
+  createUser: async (user: {
+    email: string;
+    name: string;
+    password: string;
+    role: string;
+    department_id?: string;
+    is_active?: boolean;
+  }): Promise<User> => {
+    const response = await apiCall<ApiResponse<User>>("/users", {
+      method: "POST",
+      body: JSON.stringify(user),
+    });
+    return response.data;
+  },
+
+  updateUser: async (
+    id: string,
+    user: Partial<{
+      email: string;
+      name: string;
+      password: string;
+      role: string;
+      department_id: string;
+      is_active: boolean;
+    }>
+  ): Promise<User> => {
+    const response = await apiCall<ApiResponse<User>>(`/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(user),
+    });
+    return response.data;
+  },
+
+  deleteUser: async (id: string): Promise<void> => {
+    await apiCall(`/users/${id}`, {
+      method: "DELETE",
+    });
+  },
 };
 
 export interface AgentOnlineStatus {
@@ -883,3 +961,101 @@ export interface AgentOnlineStatus {
 export interface DepartmentStats {
   [department: string]: number;
 }
+
+// Ticket Categories API
+export interface TicketCategory {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  color: string;
+  is_active: boolean;
+  sla_first_response: number;
+  sla_resolution: number;
+  default_department_id: string;
+  default_department_name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const ticketCategoriesApi = {
+  getCategories: async (): Promise<TicketCategory[]> => {
+    const response = await apiCall<ApiResponse<TicketCategory[]>>(
+      "/ticket-categories"
+    );
+    return response.data;
+  },
+
+  createCategory: async (category: {
+    name: string;
+    code: string;
+    description?: string;
+    color: string;
+    is_active?: boolean;
+    sla_first_response: number;
+    sla_resolution: number;
+    default_department_id?: string;
+  }): Promise<TicketCategory> => {
+    const response = await apiCall<ApiResponse<TicketCategory>>(
+      "/ticket-categories",
+      {
+        method: "POST",
+        body: JSON.stringify(category),
+      }
+    );
+    return response.data;
+  },
+
+  updateCategory: async (
+    id: string,
+    category: Partial<{
+      name: string;
+      code: string;
+      description: string;
+      color: string;
+      is_active: boolean;
+      sla_first_response: number;
+      sla_resolution: number;
+      default_department_id: string;
+    }>
+  ): Promise<TicketCategory> => {
+    const response = await apiCall<ApiResponse<TicketCategory>>(
+      `/ticket-categories/${id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(category),
+      }
+    );
+    return response.data;
+  },
+
+  deleteCategory: async (id: string): Promise<void> => {
+    await apiCall(`/ticket-categories/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+// Generic API client for simple usage
+export const api = {
+  get: async (endpoint: string) => {
+    return await apiCall(endpoint);
+  },
+  post: async (endpoint: string, data?: unknown) => {
+    return await apiCall(endpoint, {
+      method: "POST",
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+  put: async (endpoint: string, data?: unknown) => {
+    return await apiCall(endpoint, {
+      method: "PUT",
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+  delete: async (endpoint: string) => {
+    return await apiCall(endpoint, {
+      method: "DELETE",
+    });
+  },
+};

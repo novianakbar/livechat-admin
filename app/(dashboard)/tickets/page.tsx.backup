@@ -7,7 +7,6 @@ import { TicketTable } from '@/components/tickets/TicketTable';
 import { TicketFilters } from '@/components/tickets/TicketFilters';
 import { useTicketStore } from '@/lib/stores/ticket-store';
 import type { TicketFilter, TicketListItem } from '@/lib/types/tickets';
-import { RadixButton } from '@/components/ui/radix-form';
 
 export default function TicketsPage() {
     const router = useRouter();
@@ -110,22 +109,21 @@ export default function TicketsPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <RadixButton
-                        variant="outline"
+                    <button
                         onClick={handleRefresh}
                         disabled={loading}
-                        className="cursor-pointer flex items-center"
+                        className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors font-medium inline-flex items-center disabled:opacity-50"
                     >
                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
-                    </RadixButton>
-                    <RadixButton
+                    </button>
+                    <button
                         onClick={handleCreateTicket}
-                        className="cursor-pointer flex items-center"
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium inline-flex items-center"
                     >
                         <Plus className="h-4 w-4 mr-2" />
                         New Ticket
-                    </RadixButton>
+                    </button>
                 </div>
             </div>
 
@@ -238,8 +236,7 @@ export default function TicketsPage() {
                                 {' '}({pagination.total} total tickets)
                             </div>
                             <div className="flex gap-2">
-                                <RadixButton
-                                    variant="outline"
+                                <button
                                     onClick={() => {
                                         const prevPage = pagination.page - 1;
                                         const newFilters = {
@@ -249,18 +246,17 @@ export default function TicketsPage() {
                                         fetchTickets(newFilters);
                                     }}
                                     disabled={pagination.page <= 1 || loading}
-                                    className="cursor-pointer text-sm"
+                                    className="bg-white text-gray-700 px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Previous
-                                </RadixButton>
-                                <RadixButton
-                                    variant="outline"
+                                </button>
+                                <button
                                     onClick={handleLoadMore}
                                     disabled={pagination.page >= pagination.total_pages || loading}
-                                    className="cursor-pointer text-sm"
+                                    className="bg-white text-gray-700 px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Next
-                                </RadixButton>
+                                </button>
                             </div>
                         </div>
                     </div>

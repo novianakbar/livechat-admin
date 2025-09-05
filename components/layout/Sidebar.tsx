@@ -11,15 +11,25 @@ import {
     UserIcon,
     Bars3Icon,
     XMarkIcon,
-    TicketIcon
+    TicketIcon,
+    BuildingOffice2Icon
 } from '@heroicons/react/24/outline';
 import { useSidebar } from './SidebarContext';
+import { useAuth } from '@/components/providers/AuthProvider';
 
-const navigation = [
+interface NavigationItem {
+    name: string;
+    href: string;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    adminOnly?: boolean;
+}
+
+const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Conversations', href: '/conversations', icon: ChatBubbleBottomCenterTextIcon },
     { name: 'Tickets', href: '/tickets', icon: TicketIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
+    { name: 'Management', href: '/management', icon: BuildingOffice2Icon, adminOnly: true },
     { name: 'Agents', href: '/agents', icon: UsersIcon },
     { name: 'Profile', href: '/profile', icon: UserIcon },
     { name: 'Settings', href: '/settings', icon: CogIcon },
@@ -27,7 +37,16 @@ const navigation = [
 
 export function Sidebar() {
     const { isDesktopCollapsed, setIsDesktopCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
+    const { user } = useAuth();
     const pathname = usePathname();
+
+    // Filter navigation items based on user role
+    const filteredNavigation = navigation.filter(item => {
+        if (item.adminOnly) {
+            return user?.role === 'admin';
+        }
+        return true;
+    });
 
     return (
         <>
@@ -81,7 +100,7 @@ export function Sidebar() {
 
                     {/* Navigation */}
                     <nav className={`flex-1 py-6 space-y-2 ${isDesktopCollapsed ? 'px-2' : 'px-4'}`}>
-                        {navigation.map((item) => {
+                        {filteredNavigation.map((item) => {
                             const isActive = pathname === item.href;
                             return (
                                 <Link
@@ -107,13 +126,13 @@ export function Sidebar() {
                             <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
                                 <UserIcon className="w-5 h-5 text-white" />
                             </div>
-                            {!isDesktopCollapsed && (
+                            {!isDesktopCollapsed && user && (
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-900 truncate">
-                                        John Doe
+                                        {user.name}
                                     </p>
                                     <p className="text-xs text-gray-500 truncate">
-                                        Admin
+                                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                                     </p>
                                 </div>
                             )}

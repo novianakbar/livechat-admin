@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/modal-enhancements.css";
 
 :root {
   --background: #ffffff;
@@ -46,8 +47,10 @@ body {
   transition: all 0.2s ease-in-out;
 }
 
-/* Focus styles */
-*:focus {
+/* Focus styles - exclude elements that have custom focus styling */
+*:focus:not(.modal-focus-custom):not([role="dialog"]):not(button):not(
+    input
+  ):not(select):not(textarea) {
   outline: 2px solid #ef4444;
   outline-offset: 2px;
 }
@@ -57,7 +60,7 @@ body {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
-/* Focus styles */
+/* Focus styles for specific elements */
 .focus-visible:focus {
   outline: 2px solid #d32f2f;
   outline-offset: 2px;
